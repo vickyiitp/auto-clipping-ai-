@@ -737,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
       highlight_words: karaokeToggle ? karaokeToggle.checked : true,
       resource_mode: resourceModeSelect ? resourceModeSelect.value : "balanced",
       download_resolution: downloadResolutionSelect ? downloadResolutionSelect.value : "720p",
-      sub_language_mode: subLanguageModeSelect ? subLanguageModeSelect.value : "en_translate",
+      sub_language_mode: subLanguageModeSelect ? subLanguageModeSelect.value : "original",
     };
 
     try {

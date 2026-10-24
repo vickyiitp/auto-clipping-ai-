@@ -113,7 +113,7 @@ def run_job_thread(job: GenerationJob):
             highlight_words=job.params.get("highlight_words", True),
             resource_mode=job.params.get("resource_mode", "balanced"),
             download_resolution=job.params.get("download_resolution", "720p"),
-            sub_language_mode=job.params.get("sub_language_mode", "en_translate"),
+            sub_language_mode=job.params.get("sub_language_mode", "original"),
             log_callback=job.add_log,
         )
         job.results = results

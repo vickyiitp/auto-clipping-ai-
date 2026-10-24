@@ -785,8 +785,16 @@ def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
         cpu_threads=threads,
     )
 
-    task = "translate" if sub_language_mode in ("en_translate", "english", "hinglish") else "transcribe"
-    prompt = "Translate foreign speech and lyrics into clean English subtitles for vertical shorts."
+    if sub_language_mode in ("original", "hinglish", "romanized"):
+        task = "transcribe"
+        prompt = (
+            "Transcribe original spoken lyrics and speech phonetically in the English alphabet (Latin script). "
+            "Write the exact original spoken words in Roman letters (Hinglish/Romaji/Pinyin/Romanized) so viewers can sing along. "
+            "Never write in Devanagari, Gurmukhi, Kanji, Arabic or non-Latin scripts. Use only standard English alphabet letters."
+        )
+    else:
+        task = "translate"
+        prompt = "Translate foreign speech and lyrics into clean English subtitles for vertical shorts."
 
     all_words = []
     full_text_lines = []
@@ -811,18 +819,53 @@ def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
         for segment in segments_generator:
             seg_text = segment.text.strip()
             if seg_text:
-                full_text_lines.append(seg_text)
+                if sub_language_mode in ("original", "hinglish", "romanized"):
+                    try:
+                        import anyascii
+                        seg_text = anyascii.anyascii(seg_text).strip()
+                    except Exception:
+                        pass
+                if seg_text:
+                    full_text_lines.append(seg_text)
 
             if segment.words:
                 for w in segment.words:
                     word_clean = w.word.strip()
                     if word_clean:
-                        all_words.append({
-                            "word": word_clean,
-                            "start": round(w.start + time_offset, 3),
-                            "end": round(w.end + time_offset, 3),
-                            "probability": round(w.probability, 2),
-                        })
+                        # When Original Spoken mode is selected, convert any original script phonetically into English letters
+                        if sub_language_mode in ("original", "hinglish", "romanized"):
+                            try:
+                                import anyascii
+                                word_clean = anyascii.anyascii(word_clean).strip()
+                            except Exception:
+                                pass
+                        if word_clean:
+                            all_words.append({
+                                "word": word_clean,
+                                "start": round(w.start + time_offset, 3),
+                                "end": round(w.end + time_offset, 3),
+                                "probability": round(w.probability, 2),
+                            })
+            elif seg_text:
+                # Fallback: if word_timestamps is empty, split segment into words
+                words_in_seg = seg_text.split()
+                if words_in_seg:
+                    dur = max(0.18, (segment.end - segment.start) / len(words_in_seg))
+                    for i_w, w_str in enumerate(words_in_seg):
+                        w_clean = w_str.strip()
+                        if sub_language_mode in ("original", "hinglish", "romanized"):
+                            try:
+                                import anyascii
+                                w_clean = anyascii.anyascii(w_clean).strip()
+                            except Exception:
+                                pass
+                        if w_clean:
+                            all_words.append({
+                                "word": w_clean,
+                                "start": round(segment.start + time_offset + i_w * dur, 3),
+                                "end": round(min(segment.end, segment.start + (i_w + 1) * dur) + time_offset, 3),
+                                "probability": 0.85,
+                            })
 
         # Remove temporary chunk from SSD as soon as consumed (unless it's full_audio.wav)
         if chunk_file.name.startswith("chunk_"):
@@ -1166,7 +1209,19 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
     outline_width   = theme.get("outline_width", 6)
     shadow          = theme.get("shadow", 4)
     uppercase       = theme.get("uppercase", True)
-    words_per_line  = max(1, min(2, theme.get("words_per_line", 2)))
+    words_per_line  = max(1, min(6, int(theme.get("words_per_line", 2))))
+    highlight_active= theme.get("highlight_words", True)
+    sub_pos         = str(theme.get("sub_position", "bottom")).lower()
+
+    if "top" in sub_pos:
+        alignment = 8
+        margin_v = 220
+    elif "center" in sub_pos or "middle" in sub_pos:
+        alignment = 5
+        margin_v = 0
+    else:  # bottom
+        alignment = 2
+        margin_v = 360
 
     # Filter words strictly in interval
     clip_words = [w for w in words if w["end"] >= start_time - 0.2 and w["start"] <= end_time + 0.2]
@@ -1185,7 +1240,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: KineticMusic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},2,30,30,360,1
+Style: KineticMusic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},{alignment},30,30,{margin_v},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -1210,21 +1265,26 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     subtitle_events = []
     last_event_end = 0.0
 
-    # Group into pairs or singles: 1-to-2 words on screen max with kinetic bounce
+    # Group into words_per_line chunks with dynamic kinetic bounce
     for i in range(0, len(clip_words), words_per_line):
         group = clip_words[i:i + words_per_line]
         raw_start = group[0]["start"] - start_time
         raw_end = group[-1]["end"] - start_time
 
         group_start = max(0.0, raw_start, last_event_end)
-        group_end = max(group_start + 0.22, raw_end + 0.12)
+        group_end = max(group_start + 0.24, raw_end + 0.12)
 
-        if len(group) == 1:
-            w_text = group[0]["word"].strip()
-            if uppercase:
-                w_text = w_text.upper()
-            # Kinetic Elastic Pop & Glowing Edge Aura
-            colored_text = f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w_text}"
+        if len(group) == 1 or not highlight_active:
+            tokens = []
+            for w in group:
+                wt = w["word"].strip()
+                if uppercase: wt = wt.upper()
+                tokens.append(wt)
+            joined_txt = " ".join(tokens)
+            if highlight_active:
+                colored_text = f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{joined_txt}"
+            else:
+                colored_text = f"{{\\c{primary_color}}}{joined_txt}"
             subtitle_events.append({
                 "start": group_start,
                 "end": group_end,
@@ -1232,42 +1292,37 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             })
             last_event_end = group_end
         else:
-            w1_start = group_start
-            w2_start = max(w1_start + 0.08, min(group[1]["start"] - start_time, group_end - 0.08))
-            w1_end = w2_start
-            w2_end = group_end
+            n_words = len(group)
+            for k in range(n_words):
+                wk_raw_start = group[k]["start"] - start_time
+                wk_start = max(group_start, wk_raw_start)
+                if k < n_words - 1:
+                    wk_next_start = group[k + 1]["start"] - start_time
+                    wk_end = max(wk_start + 0.08, min(wk_next_start, group_end - 0.06 * (n_words - 1 - k)))
+                else:
+                    wk_end = group_end
 
-            w1_text = group[0]["word"].strip()
-            w2_text = group[1]["word"].strip()
-            if uppercase:
-                w1_text = w1_text.upper()
-                w2_text = w2_text.upper()
+                if wk_end <= wk_start:
+                    wk_end = wk_start + 0.15
 
-            # Event 1: Word 1 POPS with 120% bounce & neon aura; Word 2 is clean white
-            ev1_text = (
-                f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w1_text} "
-                f"{{\\rKinetic\\c{primary_color}}}{w2_text}"
-            )
-            subtitle_events.append({
-                "start": w1_start,
-                "end": w1_end,
-                "text": ev1_text,
-            })
+                tokens = []
+                for idx_w, w_item in enumerate(group):
+                    w_txt = w_item["word"].strip()
+                    if uppercase:
+                        w_txt = w_txt.upper()
+                    if idx_w == k and highlight_active:
+                        tokens.append(f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w_txt}")
+                    else:
+                        tokens.append(f"{{\\rKinetic\\c{primary_color}}}{w_txt}")
 
-            # Event 2: Word 1 settles; Word 2 POPS with 120% bounce & neon aura
-            ev2_text = (
-                f"{{\\rKinetic\\c{primary_color}}}{w1_text} "
-                f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w2_text}"
-            )
-            subtitle_events.append({
-                "start": w2_start,
-                "end": w2_end,
-                "text": ev2_text,
-            })
+                subtitle_events.append({
+                    "start": wk_start,
+                    "end": wk_end,
+                    "text": " ".join(tokens),
+                })
+            last_event_end = group_end
 
-            last_event_end = w2_end
-
-    # Build ASS content with dual styles
+    # Build ASS content with position and typography settings
     ass_header = f"""[Script Info]
 Title: AutoClip Kinetic Subtitles
 ScriptType: v4.00+
@@ -1278,8 +1333,8 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Kinetic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},2,30,30,360,1
-Style: KineticGlow,{font_family},{font_size},{highlight_color},&H000000FF,{glow_color},&H80000000,-1,0,0,0,100,100,1,0,1,{outline_width + 1},{shadow},2,30,30,360,1
+Style: Kinetic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},{alignment},30,30,{margin_v},1
+Style: KineticGlow,{font_family},{font_size},{highlight_color},&H000000FF,{glow_color},&H80000000,-1,0,0,0,100,100,1,0,1,{outline_width + 1},{shadow},{alignment},30,30,{margin_v},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -1477,6 +1532,10 @@ def process_video_pipeline(
         style_override["words_per_line"] = int(custom_words_per_line)
     if custom_uppercase is not None:
         style_override["uppercase"] = bool(custom_uppercase)
+    if sub_position:
+        style_override["sub_position"] = sub_position
+    if highlight_words is not None:
+        style_override["highlight_words"] = bool(highlight_words)
 
     log(f"\n  ⚡ STEP 5: SEQUENTIAL FFmpeg RENDER ({len(clips)} CLIPS • LOW-VRAM)")
 

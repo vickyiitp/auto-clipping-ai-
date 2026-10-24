@@ -27,3 +27,6 @@ flask
 
 # System Resource & Memory Optimization
 psutil
+
+# Universal Phonetic Romanization / Transliteration (Original Spoken Lyrics in English Alphabet)
+anyascii
