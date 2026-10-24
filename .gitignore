@@ -23,6 +23,8 @@ output/*
 !output/.gitkeep
 temp/*
 !temp/.gitkeep
+fonts/*
+!fonts/.gitkeep
 
 # Environment variables & credentials
 .env

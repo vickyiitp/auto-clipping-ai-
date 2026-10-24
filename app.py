@@ -29,6 +29,9 @@ from flask import Flask, render_template, request, jsonify, Response, send_file,
 from main import (
     Config,
     SUBTITLE_PRESETS,
+    GENRE_THEMES,
+    GOOGLE_FONTS_CATALOG,
+    detect_hardware_encoder,
     process_video_pipeline,
     inspect_youtube_video,
     inspect_local_video,
@@ -95,6 +98,7 @@ def run_job_thread(job: GenerationJob):
         results = process_video_pipeline(
             youtube_url=job.params.get("youtube_url"),
             local_video_path=job.params.get("local_video_path"),
+            genre=job.params.get("genre", "Podcast"),
             num_clips=job.params.get("num_clips", Config.NUM_CLIPS),
             clip_min_sec=job.params.get("clip_min_sec", Config.CLIP_MIN_SEC),
             clip_max_sec=job.params.get("clip_max_sec", Config.CLIP_MAX_SEC),
@@ -221,16 +225,18 @@ def get_presets():
 
     return jsonify({
         "presets": SUBTITLE_PRESETS,
+        "genres": list(GENRE_THEMES.keys()),
+        "genre_themes": GENRE_THEMES,
         "fonts": fonts,
+        "hardware_encoder": detect_hardware_encoder(),
         "sample_videos": sample_videos,
         "default_config": {
+            "genre": Config.GENRE,
             "num_clips": Config.NUM_CLIPS,
             "clip_min_sec": Config.CLIP_MIN_SEC,
             "clip_max_sec": Config.CLIP_MAX_SEC,
-            "sub_preset": Config.SUB_PRESET,
-            "font_size": Config.SUB_FONT_SIZE,
+            "sub_preset": "tiktok_yellow",
             "words_per_line": Config.SUB_WORDS_PER_LINE,
-            "uppercase": Config.SUB_UPPERCASE,
         }
     })
 

@@ -133,12 +133,32 @@
 
         <div class="divider"></div>
 
-        <!-- Subtitle Styling Header -->
+        <!-- Subtitle Styling Header & Genre Selection -->
         <div class="card-header">
           <div class="step-num">2</div>
           <div>
-            <h2 class="card-title">Subtitle Fonts & Aesthetics</h2>
-            <p class="card-desc">Choose viral styles tailored for singing and speeches</p>
+            <h2 class="card-title">Genre & Kinetic Typography</h2>
+            <p class="card-desc">Select content genre for dynamic Llama-3 prompt criteria and 10+ Google Fonts</p>
+          </div>
+        </div>
+
+        <!-- Content Genre Selector -->
+        <div class="field-row" style="margin-bottom: 16px;">
+          <div class="field-col" style="grid-column: 1 / -1;">
+            <label class="field-label" for="genreSelect">
+              🎭 Video Genre (Dynamic Llama-3 Criteria & Auto-Theme)
+              <span style="font-size: 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">Zero-RAM SSD Engine</span>
+            </label>
+            <select id="genreSelect" class="select-input">
+              <option value="Podcast" selected>🎙️ Podcast (Conversational Hooks, Debates & Controversial Points)</option>
+              <option value="Motivational">🔥 Motivational (Emotional Breakthroughs, Mindset Shifts & Life Lessons)</option>
+              <option value="Anime">⚔️ Anime (High-Stakes Tension, Battle Climaxes & Hype One-Liners)</option>
+              <option value="Movie">🎬 Movie (Dramatic Cliffhangers, Suspense & High-Stakes Dialogue)</option>
+              <option value="Web Series">📺 Web Series (Character Clashes, Secret Exposes & Face-Offs)</option>
+              <option value="Song">🎵 Song / Music (Peak Vocal Choruses, Energy Drops & Lyric Hooks)</option>
+              <option value="Gaming">🎮 Gaming (Clutch Plays, Rage/Hype Reactions & Funny Fails)</option>
+              <option value="Educational">💡 Educational / Tech ('Did You Know?' Hooks & Mind-Blowing Facts)</option>
+            </select>
           </div>
         </div>
 
@@ -168,11 +188,18 @@
             <div class="field-col">
               <label class="field-label" for="fontFamilySelect">Font Family</label>
               <select id="fontFamilySelect" class="select-input">
-                <option value="Impact" selected>Impact (Viral Shorts)</option>
-                <option value="Arial Black">Arial Black (Heavy Bold)</option>
-                <option value="Trebuchet MS">Trebuchet MS (Modern Clean)</option>
-                <option value="Verdana">Verdana (Crisp)</option>
-                <option value="Arial">Arial (Standard)</option>
+                <option value="Montserrat-Black" selected>Montserrat Black (Motivational / Modern)</option>
+                <option value="Poppins-ExtraBold">Poppins ExtraBold (Podcasts / Clean Punchy)</option>
+                <option value="BebasNeue-Regular">Bebas Neue (Anime / Action Shonen)</option>
+                <option value="Impact">Impact (Viral Shorts Standard)</option>
+                <option value="LuckiestGuy-Regular">Luckiest Guy (Gaming / Reactions)</option>
+                <option value="PlayfairDisplay-Bold">Playfair Display (Movies / Drama)</option>
+                <option value="Cinzel-Bold">Cinzel (Web Series / Cinematic Gold)</option>
+                <option value="Oswald-Bold">Oswald Bold (Songs / Music Videos)</option>
+                <option value="FiraCode-Bold">Fira Code (Tech / Educational)</option>
+                <option value="Anton-Regular">Anton (Heavy Headline)</option>
+                <option value="Rubik-Black">Rubik Black (Playful Vlogs)</option>
+                <option value="Arial Black">Arial Black (Classic Heavy)</option>
               </select>
             </div>
             <div class="field-col">
@@ -185,10 +212,9 @@
             <div class="field-col">
               <label class="field-label" for="wordsPerLine">Words Per Line</label>
               <select id="wordsPerLine" class="select-input">
-                <option value="2">2 words (Rapid / Rap / Fast Singing)</option>
-                <option value="3" selected>3 words (Punchy Viral - Recommended)</option>
-                <option value="4">4 words (Standard Lyrics)</option>
-                <option value="6">6 words (Longer sentences)</option>
+                <option value="1">1 word (Hyper-Rapid Single Word Pulse)</option>
+                <option value="2" selected>2 words (Viral Kinetic TikTok/Reels Style)</option>
+                <option value="3">3 words (Standard Speech)</option>
               </select>
             </div>
             <div class="field-col">

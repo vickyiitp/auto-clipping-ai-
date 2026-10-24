@@ -227,6 +227,38 @@ document.addEventListener("DOMContentLoaded", () => {
       if (btnPresetZoo) btnPresetZoo.classList.remove("active");
       resetDashboardForNewVideo(btnPresetSong.dataset.url);
     });
+  const genreSelectEl = document.getElementById("genreSelect");
+  if (genreSelectEl) {
+    genreSelectEl.addEventListener("change", () => {
+      const g = genreSelectEl.value;
+      if (g === "Motivational") {
+        if (fontFamilySelect) fontFamilySelect.value = "Montserrat-Black";
+        selectPresetById("tiktok_yellow");
+      } else if (g === "Anime") {
+        if (fontFamilySelect) fontFamilySelect.value = "BebasNeue-Regular";
+        selectPresetById("sunset_fire");
+      } else if (g === "Podcast") {
+        if (fontFamilySelect) fontFamilySelect.value = "Poppins-ExtraBold";
+        selectPresetById("emerald_glow");
+      } else if (g === "Song") {
+        if (fontFamilySelect) fontFamilySelect.value = "Oswald-Bold";
+        selectPresetById("neon_cyber");
+      } else if (g === "Movie") {
+        if (fontFamilySelect) fontFamilySelect.value = "PlayfairDisplay-Bold";
+        selectPresetById("hormozi_white");
+      } else if (g === "Web Series") {
+        if (fontFamilySelect) fontFamilySelect.value = "Cinzel-Bold";
+        selectPresetById("hormozi_white");
+      } else if (g === "Gaming") {
+        if (fontFamilySelect) fontFamilySelect.value = "LuckiestGuy-Regular";
+        selectPresetById("tiktok_yellow");
+      } else if (g === "Educational") {
+        if (fontFamilySelect) fontFamilySelect.value = "FiraCode-Bold";
+        selectPresetById("emerald_glow");
+      }
+      if (wordsPerLine) wordsPerLine.value = "2";
+      updateSubtitlePreview();
+    });
   }
 
   if (btnPresetZoo) {
@@ -684,9 +716,11 @@ document.addEventListener("DOMContentLoaded", () => {
     resetStepper();
     appendLog(`[System] Initializing pipeline for: ${sourceLabel}`, "info");
 
+    const genreSelect = document.getElementById("genreSelect");
     const payload = {
       youtube_url: ytUrl,
       local_video_path: localPath,
+      genre: genreSelect ? genreSelect.value : "Podcast",
       clipping_mode: currentClippingMode,
       chunk_size_sec: parseInt(clipLengthSelect.value, 10),
       num_clips: parseInt(numClipsSelect.value, 10),
