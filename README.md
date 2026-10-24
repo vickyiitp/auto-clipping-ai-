@@ -1,363 +1,289 @@
-# 🎬 Auto Clipping — Complete Setup & Usage Guide
+<div align="center">
 
-> **Converts long YouTube videos into vertical 9:16 Shorts with burned-in subtitles.**
-> 100% local. Zero paid APIs. Open source.
+# ⚡ AutoClip AI Studio
+### Autonomous Local AI Pipeline: Long-Form Videos ➔ Viral 9:16 Shorts, Reels & TikToks
 
----
+<p align="center">
+  <b>100% Free & Open-Source • 100% Local & Private • Zero Paid APIs • Unlimited High-Res Exports</b>
+</p>
 
-## 📋 What This Script Does (The Big Picture)
+[![GitHub Stars](https://img.shields.io/github/stars/vickyiitp/auto-clipping-ai-?style=for-the-badge&logo=github&color=f59e0b)](https://github.com/vickyiitp/auto-clipping-ai-/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/vickyiitp/auto-clipping-ai-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/vickyiitp/auto-clipping-ai-/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/vickyiitp/auto-clipping-ai-?style=for-the-badge&color=ef4444)](https://github.com/vickyiitp/auto-clipping-ai-/issues)
+[![License: MIT](https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Follow @vickyiitp](https://img.shields.io/github/followers/vickyiitp?label=Follow%20%40vickyiitp&style=for-the-badge&logo=github&color=8b5cf6)](https://github.com/vickyiitp)
 
-```
-YouTube URL
-    │
-    ▼
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│  yt-dlp     │────▶│ faster-      │────▶│  Ollama +   │
-│  Download   │     │ whisper      │     │  Llama 3    │
-│  video      │     │ Transcribe   │     │  Find clips │
-└─────────────┘     └──────────────┘     └──────┬──────┘
-                                                │
-                    ┌──────────────┐     ┌───────▼──────┐
-                    │  FFmpeg      │◀────│  OpenCV      │
-                    │  Crop + Subs │     │  Face detect │
-                    └──────┬───────┘     └──────────────┘
-                           │
-                           ▼
-                    📱 9:16 Shorts (output/ folder)
-```
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python" alt="Python" />
+  <img src="https://img.shields.io/badge/Ollama-Llama%203.1-orange?style=flat-square&logo=ollama" alt="Ollama" />
+  <img src="https://img.shields.io/badge/Faster--Whisper-Word--Level%20AI-green?style=flat-square" alt="Faster Whisper" />
+  <img src="https://img.shields.io/badge/OpenCV-Smart%20Face%20Track-red?style=flat-square&logo=opencv" alt="OpenCV" />
+  <img src="https://img.shields.io/badge/FFmpeg-GPU%2FHardware%20Accel-black?style=flat-square&logo=ffmpeg" alt="FFmpeg" />
+  <img src="https://img.shields.io/badge/Flask-Web%20Studio%20UI-cyan?style=flat-square&logo=flask" alt="Flask" />
+</p>
 
 ---
 
-## Phase 1: Zero-to-One Setup
+### 🌟 Stop Paying $30–$50/month for Cloud Clipping SaaS. Run it Locally for Free!
 
-### Step 1: Install External Tools (One-Time Setup)
-
-These are programs that run **outside** Python. You need them installed on your computer:
-
-#### 🔧 FFmpeg (Required)
-FFmpeg is the engine that handles all video/audio processing.
-
-**Windows:**
-1. Go to [https://www.gyan.dev/ffmpeg/builds/](https://www.gyan.dev/ffmpeg/builds/)
-2. Download **"ffmpeg-release-essentials.zip"**
-3. Extract the ZIP file (right-click → "Extract All")
-4. Inside the extracted folder, find the `bin` folder (e.g., `ffmpeg-7.0-essentials_build\bin`)
-5. Copy the full path to that `bin` folder
-6. Search "Environment Variables" in Windows Start menu → Click "Edit the system environment variables"
-7. Click **"Environment Variables"** button → Under "System variables", find **Path** → Click **Edit**
-8. Click **New** → Paste the `bin` folder path → Click **OK** on all dialogs
-9. **Close and reopen** your terminal/PowerShell
-
-**macOS:**
-```bash
-brew install ffmpeg
+```
+ ┌─────────────────────────────────────────────────────────────────────────────────┐
+ │                                                                                 │
+ │   16:9 Landscape YouTube Video / Podcast / Lecture                              │
+ │   [████████████████████████████████████████████████] (60 Mins)                  │
+ │                                                                                 │
+ └────────────────────────────────────────┬────────────────────────────────────────┘
+                                          │  Local AI Processing
+                                          ▼
+                ┌───────────────────────────────────────────────────┐
+                │  🔥 3-5 Viral 9:16 Shorts with MrBeast Captions   │
+                │  🎯 Auto Face Tracking (Speaker always centered)   │
+                │  ⏱️ Word-by-Word Kinetic Subtitle Highlights      │
+                │  🚀 Ready to upload to TikTok / Shorts / Reels    │
+                └───────────────────────────────────────────────────┘
 ```
 
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt update && sudo apt install ffmpeg
+</div>
+
+---
+
+## ⚡ Why AutoClip AI? (SaaS vs. AutoClip)
+
+| Feature | ❌ Opus Clip / Munch / Klap | ✅ AutoClip AI (This Project) |
+| :--- | :---: | :---: |
+| **Monthly Cost** | **$29 – $99 / month** | **$0.00 Free Forever (MIT License)** |
+| **Usage Limits** | Strict monthly minutes / credits | **Unlimited Minutes & Clips** |
+| **Privacy & Security** | Videos uploaded to third-party cloud | **100% Local & Private on your machine** |
+| **API Keys Required** | Paid OpenAI / Claude / Cloud API keys | **Zero Paid APIs (Ollama + Whisper)** |
+| **Video Resolution** | Watermarked or capped at 720p/1080p | **Original 1080p/4K Crisp Quality** |
+| **Customization** | Rigid preset templates | **Full Code Control & CSS/ASS Subtitle Presets** |
+| **Web Interface** | Proprietary SaaS | **Built-in Dark Mode Web Studio + Headless CLI** |
+
+---
+
+## 🚀 Insane Features & Superpowers
+
+### 🧠 1. Autonomous Viral Moment Discovery (Local LLM)
+- Uses **Ollama + Llama 3.1** (or DeepSeek, Mistral, Qwen) to evaluate transcripts for:
+  - Strong psychological hooks (first 3 seconds)
+  - Story climax and high emotional retention
+  - Actionable punchlines and standalone coherence
+- Outputs precise timestamps with title ideas, viral hook scores, and engagement summaries.
+
+### 👁️ 2. Smart Computer Vision Face Tracking (Auto 9:16 Crop)
+- Uses **OpenCV Haar Cascades + dynamic bounding-box smoothing** to detect active human faces.
+- Computes optimal horizontal crop coordinates frame-by-frame with smooth inertia:
+  - Never chops the speaker's face off the screen.
+  - Automatically falls back to smart center-crop when no face is present.
+
+### 🔥 3. MrBeast & Hormozi Kinetic Subtitles
+- Generates professional `.ass` subtitle streams with **word-by-word active highlight karaoke**.
+- Multiple built-in designer presets:
+  - 🟡 **Hormozi Viral**: Bright yellow active word, punchy cyan, dark stroke.
+  - 🔴 **MrBeast Pop**: Bold impact font, high-contrast red/yellow stroke, heavy drop shadow.
+  - 🟢 **Cyberpunk Neon**: Neon green glow with electric accents.
+  - ⚪ **Clean Minimalist**: Elegant white with subtle box background.
+  - 👑 **Gold Executive**: Luxurious metallic gold gradients for business/finance clips.
+
+### ⚡ 4. Blazing Fast Audio Transcription (Faster-Whisper)
+- Powered by `faster-whisper` (CTranslate2 backend), running **up to 4x faster than vanilla Whisper** with half the memory footprint.
+- Full GPU CUDA acceleration + automatic FP16 / INT8 quantization support.
+- Produces exact word-level millisecond timestamps for precise caption sync.
+
+### 💻 5. Dual-Mode: Sleek Web Studio UI + Power-User CLI
+- **Modern Web App**: Built with Flask, vanilla CSS glassmorphism, real-time log streaming, live progress bar, interactive clip preview, and one-click ZIP exporter.
+- **Headless CLI**: Run single commands or batch-process entire playlists in headless mode.
+
+### 🛡️ 6. Hardware Resource Governor
+- Auto-detects available CPU threads, GPU VRAM, and system memory.
+- Safely manages chunk processing to prevent Out-Of-Memory (OOM) crashes on 8GB, 16GB, or 32GB machines.
+- Built-in one-click cache purge for temporary media files.
+
+---
+
+## 🏗️ Architecture & Pipeline Flow
+
+```
+                      ┌──────────────────────┐
+                      │  YouTube URL or File │
+                      └──────────┬───────────┘
+                                 │
+                                 ▼
+                     [ 1. yt-dlp Video Ingestion ]
+                                 │
+                     ┌───────────┴───────────┐
+                     │                       │
+                     ▼                       ▼
+            [ High-Res Video ]       [ 16kHz Mono WAV ]
+                     │                       │
+                     │                       ▼
+                     │            [ 2. Faster-Whisper ]
+                     │           (Word Timestamps STT)
+                     │                       │
+                     │                       ▼
+                     │            [ 3. Local LLM / Ollama ]
+                     │           (Llama 3.1 Hook Scoring)
+                     │                       │
+                     │                       ▼
+                     │            [ Selected Viral Segments ]
+                     │                       │
+                     ▼                       ▼
+         [ 4. OpenCV Face Tracking ]  [ 5. Kinetic Subtitle Engine ]
+         (Dynamic Pan & Centering)    (Hormozi/MrBeast ASS Styles)
+                     │                       │
+                     └───────────┬───────────┘
+                                 │
+                                 ▼
+                    [ 6. FFmpeg Hardware Render ]
+                    (9:16 Crop + Burned Subtitles)
+                                 │
+                                 ▼
+             🎉 9:16 Viral Shorts (output/ directory)
 ```
 
-**Verify it works:**
-```bash
-ffmpeg -version
-```
+---
 
-#### 🦙 Ollama (Required)
-Ollama runs AI models locally on your machine.
+## 🛠️ Tech Stack & Tools
 
-1. Go to [https://ollama.com/download](https://ollama.com/download) and install for your OS
-2. Open a terminal and run:
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **Core Runtime** | Python 3.10+ | Orchestration, parallel threading, automation |
+| **Video Downloader** | `yt-dlp` | High-fidelity YouTube video & audio extraction |
+| **Speech-to-Text** | `faster-whisper` | Fast local transcription with word-level timestamps |
+| **LLM Inference** | `ollama` (`llama3.1`) | Local AI prompt analysis, clip boundary selection |
+| **Computer Vision** | `opencv-python` | Face detection, smart crop framing, smoothing |
+| **Media Engine** | `FFmpeg` | Video slicing, 9:16 re-scaling, subtitle burn-in |
+| **Web Server** | `Flask` | REST endpoints, SSE real-time log streaming |
+| **Web UI** | Vanilla CSS3 + JS | Dark-mode glassmorphic dashboard, responsive layout |
+| **Audio Processing** | `PyAV` / `ffmpeg` | 16kHz WAV conversion for Whisper optimization |
+
+---
+
+## ⚡ Quick Start Guide (Get Running in 60s)
+
+### 1. Prerequisites
+
+Make sure you have **FFmpeg** and **Ollama** installed on your system:
+
+#### 🔧 Install FFmpeg
+- **Windows**: Download from [gyan.dev/ffmpeg](https://www.gyan.dev/ffmpeg/builds/), extract, and add the `bin` folder to your system `Path`.
+- **macOS**: `brew install ffmpeg`
+- **Linux**: `sudo apt update && sudo apt install ffmpeg`
+
+#### 🦙 Install Ollama & Pull Model
+1. Download Ollama from [ollama.com](https://ollama.com)
+2. Run this command to download the Llama 3.1 model:
 ```bash
 ollama pull llama3.1
 ```
-> This downloads the Llama 3.1 model (~4.7 GB). It only downloads once.
-
-3. Ollama runs as a background service. To verify:
-```bash
-ollama list
-```
-You should see `llama3.1` in the list.
 
 ---
 
-### Step 2: Open the Project Folder in Your Terminal
+### 2. Clone & Setup Project
 
-**Windows (PowerShell):**
-```powershell
-cd "e:\vickyiitp\Devil Labs\auto clipping"
-```
-
-**macOS / Linux:**
 ```bash
-cd ~/Desktop/auto-clipping
-```
-> If you moved the project folder somewhere else, use that path instead.
+# 1. Clone this repository
+git clone https://github.com/vickyiitp/auto-clipping-ai-.git
+cd auto-clipping-ai-
 
----
-
-### Step 3: Create a Python Virtual Environment
-
-A virtual environment is a "sandbox" so this project's packages don't interfere with anything else on your computer.
-
-**Windows (PowerShell):**
-```powershell
+# 2. Create and activate a virtual environment
+# Windows:
 python -m venv venv
-.\venv\Scripts\Activate.ps1
-```
+venv\Scripts\activate
 
-> **If you get an error about "execution policy"**, run this first:
-> ```powershell
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
-> Then try activating again.
-
-**macOS / Linux:**
-```bash
+# macOS / Linux:
 python3 -m venv venv
 source venv/bin/activate
-```
 
-> **How to know it's working:** Your terminal prompt will now show `(venv)` at the beginning.
-
----
-
-### Step 4: Install Python Packages
-
-With your virtual environment activated (you should see `(venv)` in your prompt):
-
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
 ```
 
-This installs:
-| Package | What It Does |
-|---------|-------------|
-| `yt-dlp` | Downloads YouTube videos |
-| `faster-whisper` | Transcribes speech to text (locally) |
-| `ollama` | Talks to the local Llama 3 model |
-| `pydantic` | Validates the JSON output from Llama 3 |
-| `opencv-python` | Detects faces in video frames |
-| `ffmpeg-python` | Python wrapper for FFmpeg |
-
 ---
 
-### Step 5: Place Your `cookies.txt` File (Optional)
+### 3. Launch the Studio!
 
-> **You only need this if** you want to download age-restricted or login-required videos.
-
-1. Install the browser extension **"Get cookies.txt LOCALLY"** (available for Chrome/Firefox)
-2. Go to [youtube.com](https://youtube.com) and make sure you're logged in
-3. Click the extension icon → "Export" → Save as `cookies.txt`
-4. Move the `cookies.txt` file into the project folder:
-
-```
-auto clipping/
-├── main.py           ← The script
-├── requirements.txt  ← Package list
-├── cookies.txt       ← PUT IT HERE (same level as main.py)
-└── ...
-```
-
----
-
-## Phase 2: The Code
-
-The complete script is in [`main.py`](file:///e:/vickyiitp/Devil%20Labs/auto%20clipping/main.py).
-
-### Project Structure After Running
-
-```
-auto clipping/
-├── main.py                  ← The script
-├── requirements.txt         ← Package list
-├── cookies.txt              ← (optional) YouTube cookies
-│
-├── downloads/               ← Created automatically
-│   └── Video_Title.mp4      ← The downloaded YouTube video
-│
-├── temp/                    ← Created automatically
-│   ├── full_audio.wav       ← Extracted audio
-│   ├── full_transcript.txt  ← Full text transcript
-│   ├── word_timestamps.json ← Every word with timing
-│   ├── selected_clips.json  ← The clips Llama 3 chose
-│   ├── clip_1_subtitles.ass ← Styled subtitle files
-│   ├── clip_2_subtitles.ass
-│   └── clip_3_subtitles.ass
-│
-└── output/                  ← Created automatically — YOUR FINAL SHORTS
-    ├── short_1_Catchy_Title.mp4
-    ├── short_2_Another_Title.mp4
-    └── short_3_Best_Moment.mp4
-```
-
-### Key Design Decisions
-
-| Feature | Implementation |
-|---------|---------------|
-| **Face detection fallback** | If no face is found in a segment, the script falls back to center-crop (so it never crashes) |
-| **Subtitle fallback** | If subtitle burning fails (e.g., font issues), the script retries without subtitles |
-| **LLM fallback** | If Ollama fails or returns bad data, the script creates evenly-spaced clips |
-| **Structured output** | Uses Pydantic schemas with Ollama to guarantee valid JSON (no regex parsing) |
-| **Word-level timing** | Subtitles are grouped into 6-word lines for readability on vertical screens |
-
----
-
-## Phase 3: Execution & Troubleshooting
-
-### Running the Script
-
-**Make sure your virtual environment is activated** (you see `(venv)` in your prompt).
-
-**Option A — Interactive mode (easiest):**
+#### 🌐 Option A: Launch Modern Web Studio (Recommended)
 ```bash
+# Windows quick launcher:
+run_web.bat
+
+# Or run with Python:
+python app.py
+```
+Open your browser and navigate to: **`http://localhost:5000`**
+
+#### 🖥️ Option B: Run Command-Line Pipeline
+```bash
+# Windows quick launcher:
+run.bat
+
+# Or direct CLI execution:
 python main.py
 ```
-The script will ask you to paste the YouTube URL.
-
-**Option B — Pass the URL directly:**
-```bash
-python main.py "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
-```
 
 ---
 
-### What You Should See on Screen
+## 🎨 Subtitle Presets Showcase
 
-```
-╔════════════════════════════════════════════════════════════════════╗
-║  AUTO CLIPPING — YouTube to Vertical Shorts Pipeline             ║
-║  100% Local • Zero Paid APIs • Open Source                       ║
-╚════════════════════════════════════════════════════════════════════╝
+You can choose from several hand-tuned typography styles in the UI or configuration:
 
-  🔎 Running pre-flight checks...
-  ✓ Directory ready: ...\downloads
-  ✓ Directory ready: ...\temp
-  ✓ Directory ready: ...\output
-  ✓ FFmpeg found
-  ✓ Ollama is running (model: llama3.1)
-  ✅ All systems go!
-
-  ══════════════════════════════════════════════════════════════════
-    📥  STEP 1: DOWNLOADING VIDEO
-  ══════════════════════════════════════════════════════════════════
-  [download] Downloading ...
-  ✅ Downloaded: Video_Title.mp4
-
-  ══════════════════════════════════════════════════════════════════
-    🎵  STEP 2: EXTRACTING AUDIO
-  ══════════════════════════════════════════════════════════════════
-  ✅ Audio extracted: full_audio.wav
-
-  ══════════════════════════════════════════════════════════════════
-    🗣️  STEP 3: TRANSCRIBING AUDIO
-  ══════════════════════════════════════════════════════════════════
-  🌍 Detected language: en (confidence: 98.5%)
-  ✅ Transcription complete!  Total words: 2,847
-
-  ══════════════════════════════════════════════════════════════════
-    🤖  STEP 4: FINDING BEST CLIPS
-  ══════════════════════════════════════════════════════════════════
-  📎 Clip 1: "The Shocking Truth"    120.0s → 165.0s (45.0s)
-  📎 Clip 2: "Why Nobody Talks About"  340.0s → 395.0s (55.0s)
-  📎 Clip 3: "The Real Reason"        580.0s → 620.0s (40.0s)
-
-  ══════════════════════════════════════════════════════════════════
-    🎥  STEP 5: PROCESSING CLIPS
-  ══════════════════════════════════════════════════════════════════
-  ✅ Face detected in 18/20 frames
-  ✅ Subtitles generated: clip_1_subtitles.ass (8 lines)
-  ✅ Saved: short_1_The_Shocking_Truth.mp4 (12.3 MB)
-  ...
-
-  🎉  PIPELINE COMPLETE!
-  ✅ 3 Short(s) created in: ...\output
-```
+| Preset Name | Highlight Color | Font Family | Best Used For |
+| :--- | :--- | :--- | :--- |
+| **Hormozi Yellow** | Vivid Yellow (`#FFFF00`) | Montserrat Black | Business, Hustle, Podcasts |
+| **MrBeast Impact** | Electric Red & Yellow | Impact / Komika | Entertainment, Reactions, High Energy |
+| **Neon Cyber** | Electric Lime (`#00FF88`) | Arial Black | Tech, AI, Gaming, Web3 |
+| **Minimal White** | Clean White + Box | Segoe UI Semibold | Documentaries, Storytelling, Education |
+| **Gold Executive** | Warm Metallic Gold | Trebuchet MS Bold | Finance, Motivation, Luxury |
 
 ---
 
-### ❗ Common Errors & How to Fix Them
+## 🗺️ Roadmap & Upcoming Crazy Features
 
-#### Error 1: `'ffmpeg' is not recognized as an internal or external command`
-
-**What it means:** FFmpeg is not installed or not in your system PATH.
-
-**How to fix:**
-1. Download FFmpeg from [https://www.gyan.dev/ffmpeg/builds/](https://www.gyan.dev/ffmpeg/builds/)
-2. Extract the ZIP and find the `bin` folder
-3. Add the `bin` folder path to your system PATH (see Step 1 above)
-4. **Close and reopen** your terminal — this is critical!
-5. Verify: `ffmpeg -version`
-
----
-
-#### Error 2: `ConnectionError: Failed to connect to Ollama` / `Ollama NOT REACHABLE`
-
-**What it means:** The Ollama server isn't running or the model isn't downloaded.
-
-**How to fix:**
-1. Open a **new terminal window** (separate from the one running the script)
-2. Run: `ollama serve` (keep this terminal open)
-3. In another terminal, run: `ollama pull llama3.1` (if you haven't already)
-4. Verify: `ollama list` — you should see `llama3.1`
-5. Now run the script again
-
-> **Note:** On Windows, Ollama usually auto-starts as a background service after installation. If it doesn't, run `ollama serve` manually.
+- [x] **Local Whisper STT** with word-level millisecond accuracy
+- [x] **Local Llama 3.1 integration** via Ollama for zero-cost semantic hook detection
+- [x] **OpenCV Face Tracking** for automatic horizontal pan-and-scan
+- [x] **Interactive Web Studio** with real-time SSE progress & video player
+- [ ] **Multi-Speaker Split-Screen**: Dual-box camera layout for 2-person podcast interviews
+- [ ] **Local AI B-Roll Insertion**: Automatically cut to relevant AI-generated imagery or stock footage
+- [ ] **Background Music Auto-Ducking**: Add subtle lo-fi or phonk background tracks that duck under voice
+- [ ] **One-Click Auto-Publisher**: Upload directly to YouTube Shorts, TikTok, and Instagram Reels API
+- [ ] **Whisper-X / Diarization Support**: Native speaker attribution for multi-host shows
 
 ---
 
-#### Error 3: `execution of .\venv\Scripts\Activate.ps1 is disabled on this system`
+## 🤝 Contributing & Community
 
-**What it means:** Windows PowerShell blocks scripts by default for security.
+Contributions are what make the open-source community an amazing place to learn, inspire, and create! Any contributions you make are **greatly appreciated**.
 
-**How to fix:**
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-Then try activating the virtual environment again:
-```powershell
-.\venv\Scripts\Activate.ps1
-```
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-#### Error 4 (Bonus): `ModuleNotFoundError: No module named 'yt_dlp'`
+## 👨‍💻 Creator & Author
 
-**What it means:** You're running the script outside the virtual environment, or the packages aren't installed.
+Built with ❤️ by **Vicky Kumar**
 
-**How to fix:**
-1. Make sure you see `(venv)` in your terminal prompt
-2. If not, activate the venv:
-   - Windows: `.\venv\Scripts\Activate.ps1`
-   - macOS/Linux: `source venv/bin/activate`
-3. Then install packages: `pip install -r requirements.txt`
-4. Run the script: `python main.py`
+<p align="left">
+  <a href="https://github.com/vickyiitp">
+    <img src="https://img.shields.io/badge/GitHub-Follow%20%40vickyiitp-181717?style=for-the-badge&logo=github" alt="GitHub" />
+  </a>
+  <a href="mailto:vicky_24a12res1261@iitp.ac.in">
+    <img src="https://img.shields.io/badge/Email-Contact%20Me-EA4335?style=for-the-badge&logo=gmail" alt="Email" />
+  </a>
+  <a href="https://github.com/vickyiitp/auto-clipping-ai-/stargazers">
+    <img src="https://img.shields.io/badge/Support-Leave%20a%20Star%20%E2%AD%90-yellow?style=for-the-badge" alt="Star" />
+  </a>
+</p>
 
----
-
-## 🔧 Configuration Reference
-
-All settings are in the `Config` class at the top of `main.py`. Here are the key ones:
-
-| Setting | Default | What It Controls |
-|---------|---------|-----------------|
-| `WHISPER_MODEL_SIZE` | `"base"` | Transcription accuracy vs speed. Options: `tiny`, `base`, `small`, `medium`, `large-v3` |
-| `WHISPER_DEVICE` | `"cpu"` | Set to `"cuda"` if you have an NVIDIA GPU |
-| `OLLAMA_MODEL` | `"llama3.1"` | Which Ollama model to use for clip selection |
-| `NUM_CLIPS` | `3` | How many Shorts to generate |
-| `CLIP_MIN_SEC` | `30` | Minimum clip length |
-| `CLIP_MAX_SEC` | `60` | Maximum clip length |
-| `TARGET_WIDTH` | `1080` | Output video width |
-| `TARGET_HEIGHT` | `1920` | Output video height |
-| `VIDEO_CRF` | `23` | Quality (lower = better, 18-28 is typical) |
-| `FACE_SAMPLE_FRAMES` | `20` | More = better face tracking, slower |
-| `SUB_FONT_SIZE` | `16` | Subtitle font size |
+> 💬 **Have feedback or ideas for new AI features?** Open an [Issue](https://github.com/vickyiitp/auto-clipping-ai-/issues) or connect directly! If this project helped you save money on SaaS subscriptions, please give it a **⭐ Star** and follow!
 
 ---
 
-## 💡 Tips
+## 📄 License
 
-- **First run is slowest** — Whisper downloads its model (~150 MB for "base") on the first run. Subsequent runs are much faster.
-- **GPU acceleration** — If you have an NVIDIA GPU, change `WHISPER_DEVICE` to `"cuda"` and `WHISPER_COMPUTE` to `"float16"` for 5-10x faster transcription.
-- **Longer videos** — For videos over 1 hour, consider using `WHISPER_MODEL_SIZE = "small"` for better accuracy.
-- **Different languages** — Whisper auto-detects the language. It works with 99+ languages out of the box.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
