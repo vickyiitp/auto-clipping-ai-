@@ -216,17 +216,10 @@ document.addEventListener("DOMContentLoaded", () => {
       selectPresetById("neon_cyber");
       btnPresetSong.classList.add("active");
       if (btnPresetZoo) btnPresetZoo.classList.remove("active");
+      resetDashboardForNewVideo(btnPresetSong.dataset.url);
     });
   }
 
-  if (btnPresetSong) {
-    btnPresetSong.addEventListener("click", () => {
-      youtubeUrlInput.value = btnPresetSong.dataset.url;
-      selectPresetById("neon_cyber");
-      btnPresetSong.classList.add("active");
-      if (btnPresetZoo) btnPresetZoo.classList.remove("active");
-      resetDashboardForNewVideo(btnPresetSong.dataset.url);
-    });
   const genreSelectEl = document.getElementById("genreSelect");
   if (genreSelectEl) {
     genreSelectEl.addEventListener("change", () => {
@@ -677,11 +670,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setActiveVideo(vid) {
-    mainVideoPlayer.src = vid.url;
-    mainVideoPlayer.load();
-    activeVideoName.textContent = vid.filename;
-    btnDownloadActive.href = vid.download_url;
-    btnDownloadActive.setAttribute("download", vid.filename);
+    const noVideoPlaceholder = document.getElementById("noVideoPlaceholder");
+    const activeVideoMeta = document.getElementById("activeVideoMeta");
+    if (noVideoPlaceholder) noVideoPlaceholder.style.display = "none";
+    if (mainVideoPlayer) {
+      mainVideoPlayer.style.display = "block";
+      mainVideoPlayer.src = vid.url;
+      mainVideoPlayer.load();
+    }
+    if (activeVideoMeta) activeVideoMeta.style.display = "flex";
+    if (activeVideoName) activeVideoName.textContent = vid.filename;
+    if (btnDownloadActive) {
+      btnDownloadActive.href = vid.download_url;
+      btnDownloadActive.setAttribute("download", vid.filename);
+    }
   }
 
   btnRefreshVideos.addEventListener("click", loadVideos);
