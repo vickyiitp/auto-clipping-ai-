@@ -283,16 +283,18 @@ GENRE_THEMES = {
         "vibe": "Intense Character Conflict",
     },
     "Song": {
-        "font_name": "Oswald-Bold",
-        "highlight_color": "&H00FFFF00&",  # Electric Cyan
-        "primary_color": "&H00FFFFFF&",
-        "outline_color": "&H00300030&",
-        "font_size": 60,
+        "font_name": "Montserrat-Black",
+        "highlight_color": "&H00FFFF00&",  # Electric Neon Cyan Active Word
+        "primary_color": "&H00FFFFFF&",    # Crisp White Inactive Word
+        "outline_color": "&H00000000&",    # Deep Black
+        "glow_color": "&H00FF00FF&",       # Vibrant Neon Magenta / Violet Aura Glow
+        "font_size": 68,
         "outline_width": 6,
         "shadow": 4,
         "words_per_line": 2,
         "uppercase": True,
-        "vibe": "Music Video Karaoke Flow",
+        "is_song": True,
+        "vibe": "Music Video Kinetic Neon Karaoke with Dynamic Pop & Glow",
     },
     "Gaming": {
         "font_name": "LuckiestGuy-Regular",
@@ -480,18 +482,20 @@ def check_ffmpeg():
 
 
 def check_ollama() -> bool:
-    """Checks if Ollama local service is running."""
+    """Checks if Ollama service is running AND requested model is installed."""
     global OLLAMA_AVAILABLE
     if not OLLAMA_AVAILABLE:
         return False
     try:
-        import urllib.request
-        with urllib.request.urlopen("http://localhost:11434/api/version", timeout=1.5) as resp:
+        import urllib.request, json
+        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=1.5) as resp:
             if resp.status == 200:
-                OLLAMA_AVAILABLE = True
-                return True
+                data = json.loads(resp.read().decode("utf-8"))
+                models = [m.get("name", "").split(":")[0] for m in data.get("models", [])]
+                model_base = Config.OLLAMA_MODEL.split(":")[0]
+                return model_base in models
     except Exception:
-        OLLAMA_AVAILABLE = False
+        pass
     return False
 
 
@@ -756,6 +760,7 @@ def extract_and_chunk_audio(video_path: Path, max_duration_sec: float = None, ch
 
 def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
                               sub_language_mode: str = "en_translate",
+                              genre: str = "Podcast",
                               log_callback=None) -> Tuple[List[dict], str]:
     """
     Transcribes audio chunk-by-chunk directly from SSD files using faster-whisper.
@@ -768,7 +773,7 @@ def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
             except Exception: pass
 
     log("\n" + "=" * 70)
-    log(f"  🗣️  STEP 3: CHUNKED WHISPER STT (Direct SSD Stream • Mode: {sub_language_mode.upper()})")
+    log(f"  🗣️  STEP 3: CHUNKED WHISPER STT (Direct SSD Stream • Genre: {genre.upper()} • Mode: {sub_language_mode.upper()})")
     log("=" * 70)
 
     # Initialize Whisper with optimal thread count
@@ -786,6 +791,10 @@ def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
     all_words = []
     full_text_lines = []
 
+    is_song = (genre.lower() == "song")
+    # In music videos/songs, VAD filter can aggressively cut singing vocals; disable for songs
+    use_vad = False if is_song else True
+
     for idx, chunk_file in enumerate(chunk_files):
         time_offset = idx * chunk_sec
         log(f"  🎙️ Transcribing chunk {idx+1}/{len(chunk_files)} ({chunk_file.name}) from SSD...")
@@ -795,7 +804,7 @@ def transcribe_audio_streamed(chunk_files: List[Path], chunk_sec: float = 300.0,
             word_timestamps=True,
             task=task,
             beam_size=1,
-            vad_filter=True,
+            vad_filter=use_vad,
             initial_prompt=prompt,
         )
 
@@ -1137,38 +1146,71 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
                        genre: str = "Podcast") -> Path:
     """
     Programmatically creates .ASS subtitle files featuring:
-    - 1-to-2 words on screen max at a time (rapid-fire TikTok / Reels retention style)
-    - Dynamic active color highlighting (e.g. yellow or green active word, crisp white inactive)
-    - Word-level micro-timing with zero temporal overlap
-    - Genre-matched typography from 10+ Google Fonts
+    - Kinetic Word Pop: Active words bounce out to 120% scale on syllable hit (TikTok/Reels karaoke style)
+    - Radiant Neon Glow: Vibrant colored edge aura tuned to musical genre
+    - 1-to-2 words on screen max at a time for maximum retention
+    - Genre-matched typography with 10+ Google Fonts
+    - Zero-blank fallback: Displays rhythmic music visualizer badges during instrumental song sections
     """
-    # Merge genre defaults and style overrides
     theme = dict(GENRE_THEMES.get(genre, GENRE_THEMES["Podcast"]))
     if style_override:
         theme.update({k: v for k, v in style_override.items() if v is not None})
 
     font_key        = theme.get("font_name", "Montserrat-Black")
     font_family     = ensure_font(font_key)
-    font_size       = theme.get("font_size", 58)
-    highlight_color = theme.get("highlight_color", "&H0000FFFF&")
+    font_size       = theme.get("font_size", 68 if genre.lower() == "song" else 58)
+    highlight_color = theme.get("highlight_color", "&H00FFFF00&")
     primary_color   = theme.get("primary_color", "&H00FFFFFF&")
     outline_color   = theme.get("outline_color", "&H00000000&")
-    outline_width   = theme.get("outline_width", 5)
-    shadow          = theme.get("shadow", 3)
+    glow_color      = theme.get("glow_color", "&H00FF00FF&" if genre.lower() == "song" else outline_color)
+    outline_width   = theme.get("outline_width", 6)
+    shadow          = theme.get("shadow", 4)
     uppercase       = theme.get("uppercase", True)
-    words_per_line  = max(1, min(2, theme.get("words_per_line", 2)))  # 1-to-2 words max
+    words_per_line  = max(1, min(2, theme.get("words_per_line", 2)))
 
     # Filter words strictly in interval
     clip_words = [w for w in words if w["end"] >= start_time - 0.2 and w["start"] <= end_time + 0.2]
 
+    # Zero-Blank Protection: If no words detected in this clip interval (e.g. instrumental music intro or silence)
     if not clip_words:
-        output_path.write_text("", encoding="utf-8")
-        return output_path
+        if genre.lower() == "song":
+            duration = max(1.0, end_time - start_time)
+            ass_header = f"""[Script Info]
+Title: AutoClip Music Video Lyrics
+ScriptType: v4.00+
+PlayResX: {Config.TARGET_WIDTH}
+PlayResY: {Config.TARGET_HEIGHT}
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: KineticMusic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},2,30,30,360,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+            events = []
+            t = 0.5
+            while t < duration - 0.5:
+                t_end = min(duration - 0.2, t + 2.8)
+                st_str = _seconds_to_ass_time(t)
+                et_str = _seconds_to_ass_time(t_end)
+                events.append(
+                    f"Dialogue: 0,{st_str},{et_str},KineticMusic,,0,0,0,,{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,250,\\fscx112\\fscy112)\\t(250,500,\\fscx100\\fscy100)}}🎵  [MUSIC VIBES]  🎵"
+                )
+                t += 3.2
+            ass_content = ass_header + "\n".join(events) + "\n"
+            output_path.write_text(ass_content, encoding="utf-8")
+            return output_path
+        else:
+            output_path.write_text("", encoding="utf-8")
+            return output_path
 
     subtitle_events = []
     last_event_end = 0.0
 
-    # Group into pairs or singles: 1-to-2 words on screen max!
+    # Group into pairs or singles: 1-to-2 words on screen max with kinetic bounce
     for i in range(0, len(clip_words), words_per_line):
         group = clip_words[i:i + words_per_line]
         raw_start = group[0]["start"] - start_time
@@ -1181,7 +1223,8 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
             w_text = group[0]["word"].strip()
             if uppercase:
                 w_text = w_text.upper()
-            colored_text = f"{{\\c{highlight_color}}}{w_text}"
+            # Kinetic Elastic Pop & Glowing Edge Aura
+            colored_text = f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w_text}"
             subtitle_events.append({
                 "start": group_start,
                 "end": group_end,
@@ -1189,7 +1232,6 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
             })
             last_event_end = group_end
         else:
-            # 2-word group with dynamic active word karaoke switch
             w1_start = group_start
             w2_start = max(w1_start + 0.08, min(group[1]["start"] - start_time, group_end - 0.08))
             w1_end = w2_start
@@ -1201,16 +1243,22 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
                 w1_text = w1_text.upper()
                 w2_text = w2_text.upper()
 
-            # Event 1: Word 1 is active (highlighted), Word 2 is neutral white
-            ev1_text = f"{{\\c{highlight_color}}}{w1_text} {{\\c{primary_color}}}{w2_text}"
+            # Event 1: Word 1 POPS with 120% bounce & neon aura; Word 2 is clean white
+            ev1_text = (
+                f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w1_text} "
+                f"{{\\rKinetic\\c{primary_color}}}{w2_text}"
+            )
             subtitle_events.append({
                 "start": w1_start,
                 "end": w1_end,
                 "text": ev1_text,
             })
 
-            # Event 2: Word 1 is neutral white, Word 2 is active (highlighted)
-            ev2_text = f"{{\\c{primary_color}}}{w1_text} {{\\c{highlight_color}}}{w2_text}"
+            # Event 2: Word 1 settles; Word 2 POPS with 120% bounce & neon aura
+            ev2_text = (
+                f"{{\\rKinetic\\c{primary_color}}}{w1_text} "
+                f"{{\\blur5\\3c{glow_color}\\c{highlight_color}\\t(0,110,\\fscx120\\fscy120)\\t(110,220,\\fscx100\\fscy100)}}{w2_text}"
+            )
             subtitle_events.append({
                 "start": w2_start,
                 "end": w2_end,
@@ -1219,7 +1267,7 @@ def generate_subtitles(words: List[dict], start_time: float, end_time: float,
 
             last_event_end = w2_end
 
-    # Build ASS content
+    # Build ASS content with dual styles
     ass_header = f"""[Script Info]
 Title: AutoClip Kinetic Subtitles
 ScriptType: v4.00+
@@ -1230,7 +1278,8 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Kinetic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},2,30,30,340,1
+Style: Kinetic,{font_family},{font_size},{primary_color},&H000000FF,{outline_color},&H80000000,-1,0,0,0,100,100,0,0,1,{outline_width},{shadow},2,30,30,360,1
+Style: KineticGlow,{font_family},{font_size},{highlight_color},&H000000FF,{glow_color},&H80000000,-1,0,0,0,100,100,1,0,1,{outline_width + 1},{shadow},2,30,30,360,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -1270,11 +1319,10 @@ def render_short_sequential(video_path: Path, clip: dict, clip_index: int,
     scale_filter = f"scale={Config.TARGET_WIDTH}:{Config.TARGET_HEIGHT}"
     filters = [crop_filter, scale_filter]
 
-    # Include fontsdir so FFmpeg reads our downloaded Google Fonts directly from SSD
+    # Render with subtitles filter (with Windows colon escaping)
     if subtitle_path and subtitle_path.exists() and subtitle_path.stat().st_size > 0:
-        sub_escaped = str(subtitle_path.resolve()).replace("\\", "/").replace(":", "\\:")
-        fonts_dir_escaped = str(Config.FONTS_DIR.resolve()).replace("\\", "/").replace(":", "\\:")
-        filters.append(f"ass='{sub_escaped}':fontsdir='{fonts_dir_escaped}'")
+        sub_escaped = str(subtitle_path.resolve()).replace("\\", "/").replace(":", r"\:")
+        filters.append(f"subtitles='{sub_escaped}'")
 
     video_filters = ",".join(filters)
 
@@ -1287,6 +1335,7 @@ def render_short_sequential(video_path: Path, clip: dict, clip_index: int,
         *encoder_cfg["args"],
         "-c:a", "aac",
         "-b:a", Config.AUDIO_BITRATE,
+        "-pix_fmt", "yuv420p",
         "-movflags", "+faststart",
         str(output_file),
     ]
@@ -1307,7 +1356,7 @@ def render_short_sequential(video_path: Path, clip: dict, clip_index: int,
                 "ffmpeg", "-y", "-ss", str(start_time), "-i", str(video_path),
                 "-t", str(duration), "-vf", video_filters,
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-                "-c:a", "aac", "-b:a", Config.AUDIO_BITRATE, "-movflags", "+faststart",
+                "-c:a", "aac", "-b:a", Config.AUDIO_BITRATE, "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                 str(output_file)
             ]
             subprocess.run(fallback_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1390,7 +1439,7 @@ def process_video_pipeline(
     # Step 3: Chunked Whisper STT
     words, full_transcript = transcribe_audio_streamed(
         chunk_files, chunk_sec=Config.AUDIO_CHUNK_SEC,
-        sub_language_mode=sub_language_mode, log_callback=log
+        sub_language_mode=sub_language_mode, genre=genre, log_callback=log
     )
 
     # Step 4: Genre-Based AI Clip Selection
