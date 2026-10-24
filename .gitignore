@@ -1,0 +1,46 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+
+# Media downloads, temporary files, and generated outputs
+downloads/*
+!downloads/.gitkeep
+output/*
+!output/.gitkeep
+temp/*
+!temp/.gitkeep
+
+# Environment variables & credentials
+.env
+.env.*
+!.env.example
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log

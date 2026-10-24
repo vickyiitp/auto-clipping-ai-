@@ -1,0 +1,29 @@
+# ============================================================
+# Auto Clipping — Required Python Packages
+# ============================================================
+# Install all at once with:  pip install -r requirements.txt
+# ============================================================
+
+# Download YouTube videos (supports cookies.txt for age-gated content)
+yt-dlp
+
+# Local speech-to-text with word-level timestamps (no cloud API needed)
+faster-whisper
+
+# Python client for Ollama (local LLM inference — Llama 3)
+ollama
+
+# Pydantic for structured JSON output validation from Ollama
+pydantic
+
+# OpenCV for face detection and frame analysis
+opencv-python
+
+# FFmpeg wrapper (used as a fallback; we mainly use subprocess + ffmpeg)
+ffmpeg-python
+
+# Web Interface & Streaming
+flask
+
+# System Resource & Memory Optimization
+psutil
