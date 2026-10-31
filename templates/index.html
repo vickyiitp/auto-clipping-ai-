@@ -3,582 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoClip Studio — YouTube to 9:16 Shorts with Stylish Subtitles</title>
-  <meta name="description" content="Convert long YouTube videos and singing music videos into viral 9:16 Shorts with stylish burned-in subtitles. 100% local, zero paid APIs.">
+  <title>AutoClip Studio Ultra Pro — Zero-RAM Video to 9:16 Shorts</title>
+  <meta name="description" content="Enterprise AI workstation for converting videos into viral 9:16 shorts with kinetic typography. Zero cloud fees, zero RAM spikes.">
+
+  <!-- Studio Google Fonts Preload -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Alex+Brush&family=Anton&family=Audiowide&family=Bangers&family=Bebas+Neue&family=Bungee&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700&family=Dancing+Script:wght@700&family=Fira+Code:wght@500;600;700&family=Great+Vibes&family=Montserrat:wght@800;900&family=Oswald:wght@700&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:wght@700;800;900&family=Righteous&family=Russo+One&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css?v={{ v or '2.2.0' }}">
+
+  <style>
+    /* Inline Fallback & Loader Styles (Guaranteed Zero Black Screen) */
+    .studio-initial-backdrop {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0b0c10;
+      color: #f0f2f5;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      text-align: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .studio-loader-spinner-wrap {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 28px;
+    }
+    .studio-spinner-ring-1 {
+      position: absolute;
+      inset: 0;
+      border: 3px solid rgba(24, 197, 245, 0.15);
+      border-top-color: #18c5f5;
+      border-radius: 50%;
+      animation: studioLoaderRotate 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+    .studio-spinner-ring-2 {
+      position: absolute;
+      inset: 10px;
+      border: 3px solid transparent;
+      border-top-color: #00e5ff;
+      border-radius: 50%;
+      animation: studioLoaderRotate 1.5s linear infinite reverse;
+    }
+    .studio-loader-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0 0 10px 0;
+      background: linear-gradient(135deg, #ffffff 0%, #18c5f5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .studio-loader-subtitle {
+      font-size: 13px;
+      color: #718096;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .studio-loader-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      padding: 6px 14px;
+      background: rgba(24, 197, 245, 0.08);
+      border: 1px solid rgba(24, 197, 245, 0.25);
+      border-radius: 20px;
+      font-size: 12px;
+      color: #18c5f5;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .studio-fallback-card {
+      max-width: 540px;
+      background: #14161f;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 12px;
+      padding: 28px;
+      text-align: left;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      margin-top: 20px;
+    }
+    .studio-fallback-card h3 {
+      color: #ef4444;
+      font-size: 18px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+    .studio-fallback-card p {
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0 0 16px;
+    }
+    .studio-fallback-reload-btn {
+      background: #18c5f5;
+      color: #0b0c10;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .studio-fallback-reload-btn:hover {
+      opacity: 0.9;
+    }
+    @keyframes studioLoaderRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script>
+    // Global Error Catcher & Diagnostics
+    window.__appMounted = false;
+    window.addEventListener('error', function(e) {
+      if (!window.__appMounted) {
+        var host = document.getElementById('studioFallbackContainer');
+        if (host) {
+          host.innerHTML =
+            '<div class="studio-fallback-card">' +
+              '<h3>⚠️ Script Startup Exception</h3>' +
+              '<p><strong>Error:</strong> ' + (e.message || 'Unknown JavaScript execution error.') + '</p>' +
+              '<p style="font-size:12px;color:#94a3b8;font-family:monospace;">File: ' + (e.filename || 'script') + ' : Line ' + (e.lineno || '?') + '</p>' +
+              '<button class="studio-fallback-reload-btn" onclick="location.reload(true)">Force Hard Reload</button>' +
+            '</div>';
+        }
+      }
+    });
+
+    // 8-second watchdog to guarantee the user is NEVER left staring at a loader or black screen
+    setTimeout(function() {
+      if (!window.__appMounted) {
+        var host = document.getElementById('studioFallbackContainer');
+        if (host && !host.querySelector('.studio-fallback-card')) {
+          host.innerHTML =
+            '<div class="studio-fallback-card">' +
+              '<h3>⚠️ Workstation Initialization Notice</h3>' +
+              '<p>The studio took longer than expected to render. This can occur if your browser has cached an older version or blocked ES module scripts.</p>' +
+              '<button class="studio-fallback-reload-btn" onclick="location.reload(true)">Clear Cache &amp; Reload</button>' +
+            '</div>';
+        }
+      }
+    }, 8000);
+  </script>
 </head>
-<body>
-  <!-- Ambient background glow effects -->
-  <div class="glow-orb orb-1"></div>
-  <div class="glow-orb orb-2"></div>
+<body class="studio-body">
 
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="logo-area">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="23 7 16 12 23 17 23 7"></polygon>
-            <rect x="1" y="5" width="15" height="14" rx="3" ry="3"></rect>
-          </svg>
-        </div>
-        <div>
-          <h1 class="logo-title">AutoClip <span>Studio</span></h1>
-          <p class="logo-subtitle">Local AI YouTube to 9:16 Shorts • Stylish Subtitles • Zero Paid APIs</p>
-        </div>
+  <!-- Dynamic Pure JavaScript SPA Mount Root with Zero-Black Initial Skeleton -->
+  <div id="app">
+    <div class="studio-initial-backdrop" id="studioInitialLoader">
+      <div class="studio-loader-spinner-wrap">
+        <div class="studio-spinner-ring-1"></div>
+        <div class="studio-spinner-ring-2"></div>
       </div>
-      <div class="badge-group">
-        <span class="badge badge-pulse"><span class="pulse-dot"></span> 100% Local GPU/CPU</span>
-        <span class="badge" id="ramStatusBadge">🧠 RAM: Monitoring...</span>
-        <button class="badge btn-purge" id="btnPurgeCache" title="Free RAM and purge temporary working files">
-          🧹 Free RAM & Purge
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Workspace Grid -->
-    <main class="main-grid">
-      <!-- Left Panel: Video Input & Subtitle Styling -->
-      <section class="card config-panel">
-        <div class="card-header">
-          <div class="step-num">1</div>
-          <div>
-            <h2 class="card-title">Video Source</h2>
-            <p class="card-desc">Paste YouTube URL or upload a video file from your computer</p>
-          </div>
-        </div>
-
-        <!-- Video Source Selection Tabs -->
-        <div class="source-tabs">
-          <button class="source-tab active" id="tabSourceYoutube" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg>
-            YouTube Link
-          </button>
-          <button class="source-tab" id="tabSourceUpload" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            Upload Video File
-          </button>
-        </div>
-
-        <!-- YouTube Link Source Section -->
-        <div id="sectionYoutubeSource">
-          <div class="input-group">
-            <div class="input-wrapper">
-              <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-              </svg>
-              <input type="text" id="youtubeUrl" class="text-input" placeholder="https://www.youtube.com/watch?v=..." value="https://youtu.be/vB0V3iCSzQw?si=j9OpIq5WWXHcEG-o" />
-              <button class="btn-clear" id="btnClearUrl" title="Clear input">&times;</button>
-            </div>
-            <button id="btnInspectVideo" class="btn-inspect" title="Check Video Length & Metadata">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              Check Length
-            </button>
-          </div>
-
-          <!-- Quick Fill Pills -->
-          <div class="quick-fills">
-            <span class="quick-label">⚡ Quick Fill:</span>
-            <button class="pill active" id="btnPresetSong" data-url="https://youtu.be/vB0V3iCSzQw?si=j9OpIq5WWXHcEG-o" data-style="neon_cyber">
-              🎵 Guru Randhawa - "AZUL" MV
-            </button>
-            <button class="pill" id="btnPresetZoo" data-url="https://www.youtube.com/watch?v=jNQXAC9IVRw" data-style="tiktok_yellow">
-              🐘 Me at the zoo (Fast Test)
-            </button>
-          </div>
-        </div>
-
-        <!-- Local Upload Source Section -->
-        <div id="sectionUploadSource" style="display: none;">
-          <input type="file" id="localVideoFileInput" accept="video/mp4,video/x-matroska,video/quicktime,video/webm,video/*" style="display: none;" />
-          <div class="upload-dropzone" id="uploadDropzone" title="Click or Drag & Drop a video file">
-            <div class="dropzone-icon">📁</div>
-            <div class="dropzone-title">Drop your video here or <span style="color: var(--accent-cyan); text-decoration: underline;">browse file</span></div>
-            <p class="dropzone-subtitle">Supports MP4, MKV, MOV, WebM • 0s Download Time • High Speed Local AI</p>
-            <div class="upload-progress-container" id="uploadProgressContainer" style="display: none;">
-              <div class="upload-progress-bar" id="uploadProgressBar"></div>
-            </div>
-            <span class="upload-progress-text" id="uploadProgressText" style="display: none;">Uploading... 0%</span>
-          </div>
-        </div>
-
-        <!-- Video Metadata Inspector Card (Shared) -->
-        <div class="video-info-banner" id="videoInfoBanner" style="display: flex;">
-          <div class="info-thumb-wrap">
-            <img id="videoThumbImg" src="https://i.ytimg.com/vi_webp/vB0V3iCSzQw/maxresdefault.webp" alt="Thumbnail" />
-          </div>
-          <div class="info-content">
-            <div class="info-title" id="videoTitleDisplay">GURU RANDHAWA - "AZUL" MV</div>
-            <div class="info-meta">
-              <span class="info-pill length" id="videoLengthDisplay">⏱️ Length: 2m 32s (152s)</span>
-              <span class="info-pill boxes" id="videoBoxesDisplay">📦 5 Boxes @ 30s</span>
-              <span class="info-pill" id="videoQualityDisplay" style="display:none; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">💎 Max: 4K (2160p)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Subtitle Styling Header & Genre Selection -->
-        <div class="card-header">
-          <div class="step-num">2</div>
-          <div>
-            <h2 class="card-title">Genre & Kinetic Typography</h2>
-            <p class="card-desc">Select content genre for dynamic Llama-3 prompt criteria and 10+ Google Fonts</p>
-          </div>
-        </div>
-
-        <!-- Content Genre Selector -->
-        <div class="field-row" style="margin-bottom: 16px;">
-          <div class="field-col" style="grid-column: 1 / -1;">
-            <label class="field-label" for="genreSelect">
-              🎭 Video Genre (Dynamic Llama-3 Criteria & Auto-Theme)
-              <span style="font-size: 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">Zero-RAM SSD Engine</span>
-            </label>
-            <select id="genreSelect" class="select-input">
-              <option value="Podcast" selected>🎙️ Podcast (Conversational Hooks, Debates & Controversial Points)</option>
-              <option value="Motivational">🔥 Motivational (Emotional Breakthroughs, Mindset Shifts & Life Lessons)</option>
-              <option value="Anime">⚔️ Anime (High-Stakes Tension, Battle Climaxes & Hype One-Liners)</option>
-              <option value="Movie">🎬 Movie (Dramatic Cliffhangers, Suspense & High-Stakes Dialogue)</option>
-              <option value="Web Series">📺 Web Series (Character Clashes, Secret Exposes & Face-Offs)</option>
-              <option value="Song">🎵 Song / Music (Peak Vocal Choruses, Energy Drops & Lyric Hooks)</option>
-              <option value="Gaming">🎮 Gaming (Clutch Plays, Rage/Hype Reactions & Funny Fails)</option>
-              <option value="Educational">💡 Educational / Tech ('Did You Know?' Hooks & Mind-Blowing Facts)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Preset Cards Grid -->
-        <div class="style-cards" id="styleCardsContainer">
-          <!-- Populated by JS -->
-        </div>
-
-        <!-- Advanced Subtitle Fine-Tuning -->
-        <div class="tuning-section">
-          <!-- Language & Script Mode Selector -->
-          <div class="field-row">
-            <div class="field-col" style="grid-column: 1 / -1;">
-              <label class="field-label" for="subLanguageModeSelect">
-                🌐 Subtitle Language & Script
-                <span style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">Zero Chinese/Japanese/Urdu Glitches</span>
-              </label>
-              <select id="subLanguageModeSelect" class="select-input">
-                <option value="original" selected>🗣️ Original Spoken (Phonetic in English Alphabet — sing along to any song/language in Latin letters)</option>
-                <option value="en_translate">🌍 English Translation (Translates foreign speech and lyrics into English meaning)</option>
-                <option value="hinglish">🔤 Hinglish / Roman Script (Hindi, Punjabi, Urdu in English Alphabet)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label class="field-label" for="fontFamilySelect">Font Family</label>
-              <select id="fontFamilySelect" class="select-input">
-                <option value="Montserrat-Black" selected>Montserrat Black (Motivational / Modern)</option>
-                <option value="Poppins-ExtraBold">Poppins ExtraBold (Podcasts / Clean Punchy)</option>
-                <option value="BebasNeue-Regular">Bebas Neue (Anime / Action Shonen)</option>
-                <option value="Impact">Impact (Viral Shorts Standard)</option>
-                <option value="LuckiestGuy-Regular">Luckiest Guy (Gaming / Reactions)</option>
-                <option value="PlayfairDisplay-Bold">Playfair Display (Movies / Drama)</option>
-                <option value="Cinzel-Bold">Cinzel (Web Series / Cinematic Gold)</option>
-                <option value="Oswald-Bold">Oswald Bold (Songs / Music Videos)</option>
-                <option value="FiraCode-Bold">Fira Code (Tech / Educational)</option>
-                <option value="Anton-Regular">Anton (Heavy Headline)</option>
-                <option value="Rubik-Black">Rubik Black (Playful Vlogs)</option>
-                <option value="Arial Black">Arial Black (Classic Heavy)</option>
-              </select>
-            </div>
-            <div class="field-col">
-              <label class="field-label" for="fontSizeRange">Font Size (<span id="fontSizeDisplay">58</span>pt)</label>
-              <input type="range" id="fontSizeRange" min="36" max="76" step="2" value="58" class="range-slider">
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label class="field-label" for="wordsPerLine">Words Per Line</label>
-              <select id="wordsPerLine" class="select-input">
-                <option value="1">1 word (Hyper-Rapid Single Word Pulse)</option>
-                <option value="2" selected>2 words (Viral Kinetic TikTok/Reels Style)</option>
-                <option value="3">3 words (Standard Speech)</option>
-              </select>
-            </div>
-            <div class="field-col">
-              <label class="field-label" for="subPositionSelect">Subtitle Position</label>
-              <select id="subPositionSelect" class="select-input">
-                <option value="bottom" selected>📍 Bottom (Viral Shorts Standard)</option>
-                <option value="center">🎯 Center (Middle Screen Punch)</option>
-                <option value="top">🔝 Top (Header Hook Style)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label class="field-label">Karaoke Audio Sync</label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="karaokeToggle" checked>
-                <span class="toggle-slider"></span>
-                <span class="toggle-text">Word-by-Word Highlight 🎤</span>
-              </label>
-            </div>
-            <div class="field-col">
-              <label class="field-label">Text Transform</label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="uppercaseToggle" checked>
-                <span class="toggle-slider"></span>
-                <span class="toggle-text">ALL CAPS (Viral Style)</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Live Subtitle Box Preview -->
-          <div class="subtitle-preview-box" id="subtitlePreviewBox">
-            <span class="preview-badge" id="previewPositionBadge">Position: Bottom</span>
-            <div class="preview-stage" id="previewStage">
-              <div id="subtitlePreviewText" class="sample-subtitle">
-                <span class="word-active">FEEL</span> <span class="word-neutral">THE</span> <span class="word-neutral">RHYTHM</span> 🔥
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Step 3: Clipping Duration & Generate Button -->
-        <div class="card-header">
-          <div class="step-num">3</div>
-          <div>
-            <h2 class="card-title">Clipping Strategy & Boxes</h2>
-            <p class="card-desc">Choose viral highlights or cover 100% of the video in series</p>
-          </div>
-        </div>
-
-        <!-- Mode Selector Tabs -->
-        <div class="strategy-tabs">
-          <button class="strategy-tab active" id="tabHighlights" data-mode="smart_highlights">
-            🎯 Smart Vocal Highlights
-            <span class="tab-desc">Instant speech start • Best punchy hooks</span>
-          </button>
-          <button class="strategy-tab" id="tabFullVideo" data-mode="full_video">
-            📦 Full Video Auto-Tiling
-            <span class="tab-desc">Divide full length into boxes • Zero leftover</span>
-          </button>
-        </div>
-
-        <div class="field-row">
-          <div class="field-col" id="colNumClips">
-            <label class="field-label" for="numClips">Number of Clips</label>
-            <select id="numClips" class="select-input">
-              <option value="1">1 Best Short</option>
-              <option value="2">2 Shorts</option>
-              <option value="3" selected>3 Shorts (Standard)</option>
-              <option value="5">5 Shorts</option>
-            </select>
-          </div>
-          <div class="field-col">
-            <label class="field-label" for="clipLength">Box / Chunk Duration</label>
-            <select id="clipLength" class="select-input">
-              <option value="15">15 seconds (Rapid TikTok)</option>
-              <option value="30" selected>30 seconds (Standard Shorts)</option>
-              <option value="45">45 seconds</option>
-              <option value="60">60 seconds (Full 1-Min Short)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field-row" style="margin-top: 10px;">
-          <div class="field-col" style="flex: 1;">
-            <label class="field-label" for="downloadResolutionSelect">
-              📥 Download Speed & Quality
-              <span class="badge-rec" id="badgeDlSpeed" style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">⚡ Fast</span>
-            </label>
-            <select id="downloadResolutionSelect" class="select-input">
-              <option value="ultra">💎 2K / 4K Ultra HD (>1080p — Extreme Quality if available)</option>
-              <option value="1080p">🌟 1080p Full HD (Crisp 9:16 Shorts)</option>
-              <option value="720p" selected>⚡ 720p Fast (Rapid Download • Optimized for Mobile)</option>
-              <option value="max">🚀 Max Uncapped Stream (Best Original Stream)</option>
-            </select>
-          </div>
-          <div class="field-col" style="flex: 1;">
-            <label class="field-label" for="resourceModeSelect">Laptop RAM Protection</label>
-            <select id="resourceModeSelect" class="select-input">
-              <option value="balanced" selected>⚡ Balanced (Smart RAM & Priority)</option>
-              <option value="eco">🟢 Laptop Eco / Safe (1 Worker)</option>
-              <option value="turbo">🚀 Turbo Multi-Core (Max Speed)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Dynamic Box Calculation Preview -->
-        <div class="box-calculation-card" id="boxCalcCard">
-          <span class="calc-icon">⚡</span>
-          <span id="calcSummaryText">Strategy: Smart Highlights (3 viral clips starting on lyrics)</span>
-        </div>
-
-        <button id="btnGenerate" class="btn-primary">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          <span id="btnGenerateText">Generate 9:16 Shorts Now</span>
-        </button>
-      </section>
-
-      <!-- Right Panel: Realtime Monitor & Video Showcase -->
-      <section class="card results-panel">
-        <div class="card-header">
-          <div class="step-num pulse-dot-active">4</div>
-          <div>
-            <h2 class="card-title">Pipeline Progress & Output</h2>
-            <p class="card-desc">Live status, face detection & generated 9:16 preview</p>
-          </div>
-        </div>
-
-        <!-- Visual Multi-Step Progress Tracker -->
-        <div class="pipeline-stepper" id="pipelineStepper">
-          <div class="step-item" id="stepDownload">
-            <div class="step-icon">📥</div>
-            <div class="step-label">Download</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step-item" id="stepAudio">
-            <div class="step-icon">🎵</div>
-            <div class="step-label">Audio</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step-item" id="stepWhisper">
-            <div class="step-icon">🗣️</div>
-            <div class="step-label">Whisper AI</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step-item" id="stepFace">
-            <div class="step-icon">👤</div>
-            <div class="step-label">Face Crop</div>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step-item" id="stepRender">
-            <div class="step-icon">🎬</div>
-            <div class="step-label">9:16 Render</div>
-          </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="progress-container">
-          <div class="progress-bar-track">
-            <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
-          </div>
-          <div class="progress-info">
-            <span id="progressStatusText">Ready to start</span>
-            <span id="progressPercentage">0%</span>
-          </div>
-        </div>
-
-        <!-- Live Terminal Logs -->
-        <div class="terminal-container">
-          <div class="terminal-header">
-            <div class="terminal-dots">
-              <span class="dot red"></span>
-              <span class="dot yellow"></span>
-              <span class="dot green"></span>
-            </div>
-            <span class="terminal-title">Studio Console</span>
-            <button id="btnClearLogs" class="btn-terminal-action">Clear</button>
-          </div>
-          <div class="terminal-body" id="terminalLogs">
-            <div class="log-line info">[System] AutoClip Studio ready. Select a video and click Generate.</div>
-          </div>
-        </div>
-
-        <!-- Interactive Shorts Video Showcase -->
-        <div class="showcase-section">
-          <div class="section-title-row">
-            <div class="section-title-left">
-              <h3 class="section-title">📱 Generated 9:16 Shorts</h3>
-              <span class="video-count-pill" id="videoCountPill">0 clips</span>
-            </div>
-            <div class="section-actions">
-              <a id="btnDownloadAllZip" href="/api/download_all_zip" class="btn-download-all" download title="Download all clips in a single ZIP folder">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                📦 Download All (.ZIP)
-              </a>
-              <button id="btnRefreshVideos" class="btn-refresh" title="Refresh video list">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 4v6h-6"></path>
-                  <path d="M1 20v-6h6"></path>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          <!-- Video Player & Gallery Area -->
-          <div class="player-gallery-container">
-            <!-- Active 9:16 Video Player -->
-            <div class="video-preview-wrapper" id="videoPreviewWrapper">
-              <div class="smartphone-frame">
-                <div class="phone-notch"></div>
-                <div class="no-video-placeholder" id="noVideoPlaceholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 24px 16px; color: var(--text-dim);">
-                  <div style="font-size: 36px; margin-bottom: 8px;">🎬</div>
-                  <div style="font-weight: 600; color: var(--text-main); font-size: 14px; margin-bottom: 6px;">Ready to Clip</div>
-                  <div style="font-size: 11px; line-height: 1.4; color: var(--text-muted);">Paste a YouTube link or drop a video, then click "Generate 9:16 Shorts Now"!</div>
-                </div>
-                <video id="mainVideoPlayer" controls playsinline preload="metadata" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <div class="video-meta" id="activeVideoMeta" style="display: none;">
-                <span class="video-name" id="activeVideoName">Ready</span>
-                <a id="btnDownloadActive" href="#" class="btn-download" download>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                  Download MP4
-                </a>
-              </div>
-            </div>
-
-            <!-- Video Thumbnails List -->
-            <div class="video-thumbnails-list" id="videoThumbnailsList">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Full Width Architecture & Workflow Diagram -->
-    <section class="card architecture-section">
-      <div class="card-header">
-        <div class="step-num">⚡</div>
-        <div>
-          <h2 class="card-title">Intelligent Multi-Task Architecture & Workflow</h2>
-          <p class="card-desc">High-speed agentic execution: AI speech density + parallel worker pool</p>
-        </div>
+      <h1 class="studio-loader-title">AUTOCLIP STUDIO ULTRA PRO</h1>
+      <p class="studio-loader-subtitle">Zero-RAM Biomimetic Kinetic Pipeline • Multi-User Enterprise</p>
+      <div class="studio-loader-badge">
+        <span>⚡ Hardware Acceleration Ready</span>
       </div>
 
-      <div class="workflow-diagram">
-        <!-- Input & Extraction Phase -->
-        <div class="diagram-phase">
-          <div class="phase-title">Phase 1: Ingest & Transcription</div>
-          <div class="node-flow">
-            <div class="diag-node">
-              <span class="node-icon">📥</span>
-              <div class="node-title">yt-dlp Engine</div>
-              <div class="node-desc">Dual video/audio streams + cookies bypass</div>
-            </div>
-            <div class="diag-arrow">➔</div>
-            <div class="diag-node">
-              <span class="node-icon">🎵</span>
-              <div class="node-title">FFmpeg Demuxer</div>
-              <div class="node-desc">16kHz Mono PCM Audio Extraction</div>
-            </div>
-            <div class="diag-arrow">➔</div>
-            <div class="diag-node highlight">
-              <span class="node-icon">🗣️</span>
-              <div class="node-title">Faster-Whisper AI</div>
-              <div class="node-desc">CTranslate2 Local INT8 • Exact Word Timestamps</div>
-            </div>
-          </div>
+      <div id="studioFallbackContainer"></div>
+
+      <noscript>
+        <div class="studio-fallback-card" style="margin-top:24px;">
+          <h3>⚠️ JavaScript Required</h3>
+          <p>AutoClip Studio Ultra Pro is a modern real-time Single Page Application. Please enable JavaScript in your browser settings to continue.</p>
         </div>
-
-        <div class="phase-connector-v">
-          <div class="connector-line"></div>
-          <div class="connector-badge">AI Speech-Density & Segment Selector (Guarantees Vocals & Subtitles in All Clips)</div>
-          <div class="connector-line"></div>
-        </div>
-
-        <!-- Parallel Processing Phase -->
-        <div class="diagram-phase">
-          <div class="phase-title">Phase 2: Multi-Task Concurrent Worker Dispatcher (Parallel CPU Execution)</div>
-          <div class="parallel-workers-grid">
-            <div class="worker-card">
-              <div class="worker-header">
-                <span class="worker-tag">Worker 1 (Short #1)</span>
-                <span class="worker-speed">Parallel Thread</span>
-              </div>
-              <ul class="worker-steps">
-                <li>👤 OpenCV Face Tracking & Haar Cascades</li>
-                <li>📐 Adaptive 9:16 Center Cropping</li>
-                <li>🎤 Word-by-Word Karaoke ASS Subtitle Engine</li>
-                <li>🎬 FFmpeg H.264 Video + AAC Audio Render</li>
-              </ul>
-            </div>
-
-            <div class="worker-card">
-              <div class="worker-header">
-                <span class="worker-tag">Worker 2 (Short #2)</span>
-                <span class="worker-speed">Parallel Thread</span>
-              </div>
-              <ul class="worker-steps">
-                <li>👤 OpenCV Face Tracking & Haar Cascades</li>
-                <li>📐 Adaptive 9:16 Center Cropping</li>
-                <li>🎤 Word-by-Word Karaoke ASS Subtitle Engine</li>
-                <li>🎬 FFmpeg H.264 Video + AAC Audio Render</li>
-              </ul>
-            </div>
-
-            <div class="worker-card">
-              <div class="worker-header">
-                <span class="worker-tag">Worker 3 (Short #3)</span>
-                <span class="worker-speed">Parallel Thread</span>
-              </div>
-              <ul class="worker-steps">
-                <li>👤 OpenCV Face Tracking & Haar Cascades</li>
-                <li>📐 Adaptive 9:16 Center Cropping</li>
-                <li>🎤 Word-by-Word Karaoke ASS Subtitle Engine</li>
-                <li>🎬 FFmpeg H.264 Video + AAC Audio Render</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="phase-connector-v">
-          <div class="connector-line"></div>
-          <div class="connector-badge">Zero Paid APIs • Ultra-Fast Parallel Completion • 100% Local</div>
-          <div class="connector-line"></div>
-        </div>
-
-        <!-- Output Phase -->
-        <div class="diagram-phase">
-          <div class="phase-title">Phase 3: Delivery</div>
-          <div class="node-flow justify-center">
-            <div class="diag-node final">
-              <span class="node-icon">📱</span>
-              <div class="node-title">AutoClip Studio Player & Gallery</div>
-              <div class="node-desc">Instant 9:16 Playback • One-Click MP4 Download</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-      <p>AutoClip Studio • Powered by faster-whisper, OpenCV, and FFmpeg • 100% Free & Open Source</p>
-    </footer>
+      </noscript>
+    </div>
   </div>
 
-  <script src="/static/js/app.js"></script>
+  <!-- Dynamic JS Component Architecture (Version-Busted) -->
+  <script type="module" src="/static/js/app.js?v={{ v or '2.2.0' }}"></script>
 </body>
 </html>

@@ -22,8 +22,9 @@ opencv-python
 # FFmpeg wrapper (used as a fallback; we mainly use subprocess + ffmpeg)
 ffmpeg-python
 
-# Web Interface & Streaming
+# Web Interface & Production WSGI Server
 flask
+waitress
 
 # System Resource & Memory Optimization
 psutil
